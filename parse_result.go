@@ -6,9 +6,17 @@ import (
 )
 
 type ParseResult struct {
-	mu      sync.Mutex
-	count   int
-	details map[string]int
+	mu         sync.Mutex
+	count      int
+	errorCount int
+	details    map[string]int
+}
+
+func (t *ParseResult) AddError() {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	t.errorCount++
 }
 
 func (t *ParseResult) Add(url string, count int) {
@@ -24,5 +32,12 @@ func (t *ParseResult) Add(url string, count int) {
 }
 
 func (t ParseResult) String() string {
-	return fmt.Sprintf("Total: %d\n", t.count)
+
+	result := fmt.Sprintf("Total: %d\n", t.count)
+
+	if t.errorCount > 0 {
+		result += fmt.Sprintf("Finished with errors: %d urls", t.errorCount)
+	}
+
+	return result
 }

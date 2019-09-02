@@ -10,7 +10,7 @@ import (
 
 // Ищет количество вхождений searchTerm в контент
 // полученный по url
-type ContentParser func(url, searchTerm string) int
+type ContentParser func(url, searchTerm string) (int, error)
 
 // Получает из reader'а список адресов и формирует результат
 // вычисления количества повторяющихся "Go"
@@ -47,10 +47,13 @@ func ParseUrls(reader io.Reader, count ContentParser) ParseResult {
 		go func(url string) {
 			defer wg.Done()
 
-			occurrences := count(url, "Go")
-			result.Add(text, occurrences)
+			if occurrences, err := count(url, "Go"); err != nil {
+				result.AddError()
+			} else {
+				result.Add(text, occurrences)
+				fmt.Printf("Count for %s: %d\n", url, occurrences)
+			}
 
-			fmt.Printf("Count for %s: %d\n", url, occurrences)
 			<-s
 		}(text)
 	}
