@@ -40,6 +40,7 @@ func ParseUrls(reader io.Reader, count ContentParser) ParseResult {
 		// необходимо проверить, что полученная строка
 		// является валидным URL адресом
 		if _, err := url.ParseRequestURI(text); err != nil {
+			wg.Done()
 			fmt.Printf("provided url is not valid: %s, will not be parsed (should be like 'http://some.url')\n", text)
 			continue
 		}
