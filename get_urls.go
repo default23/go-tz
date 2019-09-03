@@ -27,24 +27,22 @@ func ParseUrls(reader io.Reader, count ContentParser) ParseResult {
 		// Будет блокировать дальнейшее выполнение, если канал заполнен (k=5)
 		s <- 1
 		text := scanner.Text()
-		wg.Add(1)
 
 		// Останавливаем чтение из reader'a
 		// сделал для себя, что бы удобнее было отлаживать через debugger
 		// на условие задания не влияет
 		if text == "stop_word" {
-			wg.Done()
 			break
 		}
 
 		// необходимо проверить, что полученная строка
 		// является валидным URL адресом
 		if _, err := url.ParseRequestURI(text); err != nil {
-			wg.Done()
 			fmt.Printf("provided url is not valid: %s, will not be parsed (should be like 'http://some.url')\n", text)
 			continue
 		}
 
+		wg.Add(1)
 		go func(url string) {
 			defer wg.Done()
 
